@@ -109,7 +109,7 @@
 
         <!-- Conversion Mode Toggle -->
         <div class="flex justify-center mb-8">
-            <div class="bg-white rounded-lg p-1 shadow-md">
+            <div class="bg-white rounded-lg p-1">
                 <button id="csvToJsonBtn"
                     class="px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white">
                     CSV → JSON
@@ -140,7 +140,7 @@
         <!-- Main Content -->
         <div id="mainContent" class="grid lg:grid-cols-2 gap-8">
             <!-- Input Section -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="bg-white rounded-xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="inputTitle" class="text-xl font-semibold text-gray-800">Input CSV</h2>
                     <button id="clearInput" class="text-sm text-red-500 hover:text-red-700 transition-colors">
@@ -259,7 +259,7 @@
             </div>
 
             <!-- Output Section -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="bg-white rounded-xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="outputTitle" class="text-xl font-semibold text-gray-800">Output JSON</h2>
                     <div id="outputButtons" class="flex gap-2">
@@ -291,7 +291,7 @@
         <div id="tableJsonLayout" class="hidden">
             <div class="grid lg:grid-cols-2 gap-8 mb-8">
                 <!-- Input Section for Table Mode -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Input JSON</h2>
                         <button id="clearInputTable" class="text-sm text-red-500 hover:text-red-700 transition-colors">
@@ -333,7 +333,7 @@
                 </div>
 
                 <!-- Stats Section for Table Mode -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Table Statistics</h2>
                     <div id="tableStats" class="space-y-3">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -353,7 +353,7 @@
             </div>
 
             <!-- Full Width Table Section -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="bg-white rounded-xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-800">Table View</h2>
                     <div class="text-sm text-gray-500">
@@ -379,7 +379,7 @@
         <div id="navigatorLayout" class="hidden">
             <div class="grid lg:grid-cols-2 gap-8">
                 <!-- Input Section for Navigator Mode -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Input JSON</h2>
                         <button id="clearInputNavigator"
@@ -418,7 +418,7 @@
                 </div>
 
                 <!-- Navigator Section -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-white rounded-xl p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Navigator</h2>
                         <button id="addItemNavigator"
@@ -454,7 +454,7 @@
 
     <!-- Navigator Popups -->
     <div id="navViewPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[80vh] flex flex-col">
+        <div class="bg-white rounded-lg max-w-2xl w-full m-4 max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Value</h2>
                 <button onclick="converter.closeNavViewPopup()" class="text-gray-500 hover:text-gray-700">
@@ -466,7 +466,7 @@
     </div>
 
     <div id="navEditPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 flex flex-col">
+        <div class="bg-white rounded-lg max-w-2xl w-full m-4 flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Edit Item</h2>
                 <button onclick="converter.closeNavEditPopup()" class="text-gray-500 hover:text-gray-700">
@@ -495,7 +495,7 @@
     </div>
 
     <div id="navAddPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 flex flex-col">
+        <div class="bg-white rounded-lg max-w-2xl w-full m-4 flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Add New Item</h2>
                 <button onclick="converter.closeNavAddPopup()" class="text-gray-500 hover:text-gray-700">

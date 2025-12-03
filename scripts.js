@@ -1366,12 +1366,12 @@ class CSVJSONConverter {
 
         try {
             await navigator.clipboard.writeText(output);
-            const originalText = this.elements.copyOutput.textContent;
-            this.elements.copyOutput.textContent = 'Copied!';
+            const originalHtml = this.elements.copyOutput.innerHTML;
+            this.elements.copyOutput.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
             this.elements.copyOutput.className = 'px-4 py-2 bg-green-600 text-white rounded transition-colors text-sm';
 
             setTimeout(() => {
-                this.elements.copyOutput.textContent = originalText;
+                this.elements.copyOutput.innerHTML = originalHtml;
                 this.elements.copyOutput.className = 'px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm';
             }, 2000);
         } catch (error) {

@@ -33,7 +33,11 @@ class CSVJSONConverter {
             tableHeadersFull: document.getElementById('tableHeadersFull'),
             tableBodyFull: document.getElementById('tableBodyFull'),
             fileInput: document.getElementById('fileInput'),
+            fileInputTable: document.getElementById('fileInputTable'),
+            fileInputNavigator: document.getElementById('fileInputNavigator'),
             dropZone: document.getElementById('dropZone'),
+            dropZoneTable: document.getElementById('dropZoneTable'),
+            dropZoneNavigator: document.getElementById('dropZoneNavigator'),
             csvOptions: document.getElementById('csvOptions'),
             jsonOptions: document.getElementById('jsonOptions'),
             sortOptions: document.getElementById('sortOptions'),
@@ -124,12 +128,36 @@ class CSVJSONConverter {
         this.elements.downloadJsonNavigator.addEventListener('click', () => this.downloadNavigatorJson());
         this.elements.addItemNavigator.addEventListener('click', () => this.openNavAddPopup());
         this.elements.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.elements.fileInputTable.addEventListener('change', (e) => this.handleTableFileSelect(e));
+        this.elements.fileInputNavigator.addEventListener('change', (e) => this.handleNavigatorFileSelect(e));
         this.elements.navAddType.addEventListener('change', () => this.updateNavAddPlaceholder());
     }
 
     setupDropZone() {
-        const dropZone = this.elements.dropZone;
-        dropZone.addEventListener('click', () => this.elements.fileInput.click());
+        // Main drop zone
+        this.setupSingleDropZone(this.elements.dropZone, this.elements.fileInput, (file) => {
+            if (this.currentMode === 'tableJson') {
+                this.handleTableFile(file);
+            } else if (this.currentMode === 'navigator') {
+                this.handleNavigatorFile(file);
+            } else {
+                this.handleFile(file);
+            }
+        });
+
+        // Table drop zone
+        this.setupSingleDropZone(this.elements.dropZoneTable, this.elements.fileInputTable, (file) => {
+            this.handleTableFile(file);
+        });
+
+        // Navigator drop zone
+        this.setupSingleDropZone(this.elements.dropZoneNavigator, this.elements.fileInputNavigator, (file) => {
+            this.handleNavigatorFile(file);
+        });
+    }
+
+    setupSingleDropZone(dropZone, fileInput, onDrop) {
+        dropZone.addEventListener('click', () => fileInput.click());
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -145,13 +173,7 @@ class CSVJSONConverter {
             dropZone.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                if (this.currentMode === 'tableJson') {
-                    this.handleTableFile(files[0]);
-                } else if (this.currentMode === 'navigator') {
-                    this.handleNavigatorFile(files[0]);
-                } else {
-                    this.handleFile(files[0]);
-                }
+                onDrop(files[0]);
             }
         });
     }
@@ -456,6 +478,20 @@ class CSVJSONConverter {
             } else {
                 this.handleFile(file);
             }
+        }
+    }
+
+    handleTableFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.handleTableFile(file);
+        }
+    }
+
+    handleNavigatorFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.handleNavigatorFile(file);
         }
     }
 

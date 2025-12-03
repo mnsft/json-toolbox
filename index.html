@@ -111,27 +111,27 @@
         <div class="flex justify-center mb-8">
             <div class="bg-white rounded-lg p-1">
                 <button id="csvToJsonBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white">
+                    class="px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white">
                     CSV → JSON
                 </button>
                 <button id="jsonToCsvBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    class="px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100">
                     JSON → CSV
                 </button>
                 <button id="sortJsonBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    class="px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100">
                     Sort
                 </button>
                 <button id="objectRemoverBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    class="px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100">
                     Remove
                 </button>
                 <button id="tableJsonBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    class="px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100">
                     Table
                 </button>
                 <button id="navigatorBtn"
-                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    class="px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100">
                     Navigate
                 </button>
             </div>
@@ -200,7 +200,7 @@
                     </div>
                     <div class="mt-3 flex items-center gap-2">
                         <button id="addSortCriteria"
-                            class="flex items-center gap-1 px-3 py-1 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded transition-colors">
+                            class="flex items-center gap-1 px-3 py-1 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
@@ -264,11 +264,11 @@
                     <h2 id="outputTitle" class="text-xl font-semibold text-gray-800">Output JSON</h2>
                     <div id="outputButtons" class="flex gap-2">
                         <button id="copyOutput"
-                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm">
                             Copy
                         </button>
                         <button id="downloadOutput"
-                            class="px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">
                             Download
                         </button>
                     </div>
@@ -407,11 +407,11 @@
 
                     <div class="mt-4 flex gap-2">
                         <button id="copyJsonNavigator"
-                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm">
                             <i class="fas fa-copy mr-2"></i>Copy JSON
                         </button>
                         <button id="downloadJsonNavigator"
-                            class="px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">
                             <i class="fas fa-download mr-2"></i>Download
                         </button>
                     </div>
@@ -422,7 +422,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Navigator</h2>
                         <button id="addItemNavigator"
-                            class="px-3 py-1 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">
+                            class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">
                             <i class="fas fa-plus mr-1"></i>Add
                         </button>
                     </div>
@@ -457,7 +457,7 @@
         <div class="bg-white rounded-lg max-w-2xl w-full m-4 max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Value</h2>
-                <button onclick="converter.closeNavViewPopup()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="converter.closeNavViewPopup()" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -469,7 +469,7 @@
         <div class="bg-white rounded-lg max-w-2xl w-full m-4 flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Edit Item</h2>
-                <button onclick="converter.closeNavEditPopup()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="converter.closeNavEditPopup()" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -487,9 +487,9 @@
             </div>
             <div class="p-4 border-t flex justify-end gap-2">
                 <button onclick="converter.closeNavEditPopup()"
-                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm">Cancel</button>
                 <button onclick="converter.saveNavEdit()"
-                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save</button>
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm">Save</button>
             </div>
         </div>
     </div>
@@ -498,7 +498,7 @@
         <div class="bg-white rounded-lg max-w-2xl w-full m-4 flex flex-col">
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-xl font-bold text-gray-800">Add New Item</h2>
-                <button onclick="converter.closeNavAddPopup()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="converter.closeNavAddPopup()" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -526,9 +526,9 @@
             </div>
             <div class="p-4 border-t flex justify-end gap-2">
                 <button onclick="converter.closeNavAddPopup()"
-                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm">Cancel</button>
                 <button onclick="converter.saveNavAdd()"
-                    class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600">Add</button>
+                    class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">Add</button>
             </div>
         </div>
     </div>

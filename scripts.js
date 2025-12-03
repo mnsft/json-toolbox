@@ -191,7 +191,7 @@ class CSVJSONConverter {
             this.elements.navigatorBtn
         ];
         buttons.forEach(btn => {
-            btn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
+            btn.className = 'px-6 py-2 rounded font-medium transition-colors text-gray-700 hover:bg-gray-100';
         });
 
         // Hide all layouts
@@ -210,7 +210,7 @@ class CSVJSONConverter {
         const dropZoneText = this.elements.dropZone.querySelector('p');
 
         if (mode === 'csvToJson') {
-            this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input CSV';
             this.elements.outputTitle.textContent = 'Output JSON';
@@ -221,7 +221,7 @@ class CSVJSONConverter {
             this.elements.hasHeaders.parentElement.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
-            this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Output CSV';
@@ -231,7 +231,7 @@ class CSVJSONConverter {
             this.elements.hasHeaders.parentElement.classList.add('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
-            this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.sortJsonBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Sorted JSON';
@@ -240,11 +240,11 @@ class CSVJSONConverter {
             this.initializeSortCriteria();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'tableJson') {
-            this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.tableJsonBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.tableJsonLayout.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'objectRemover') {
-            this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Filtered JSON';
@@ -253,7 +253,7 @@ class CSVJSONConverter {
             this.updateAvailableKeys();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'navigator') {
-            this.elements.navigatorBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.navigatorBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.navigatorLayout.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
             this.renderNavigator();
@@ -1050,12 +1050,12 @@ class CSVJSONConverter {
                                 ${!isFolder ? `<span class="ml-auto text-sm text-gray-500 mr-2 truncate max-w-[200px]">${preview}${preview.length >= 50 ? '...' : ''}</span>` : '<div class="flex-1"></div>'}
                             </div>
                             <div class="nav-actions flex gap-1">
-                                <button onclick="event.stopPropagation(); converter.openNavEditPopup('${this.escapeJs(key)}')" 
-                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">
+                                <button onclick="event.stopPropagation(); converter.openNavEditPopup('${this.escapeJs(key)}')"
+                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="event.stopPropagation(); converter.deleteNavItem('${this.escapeJs(key)}')" 
-                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs">
+                                <button onclick="event.stopPropagation(); converter.deleteNavItem('${this.escapeJs(key)}')"
+                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1087,12 +1087,12 @@ class CSVJSONConverter {
                                 ${!isFolder ? `<span class="ml-auto text-sm text-gray-500 mr-2 truncate max-w-[200px]">${preview}${preview.length >= 50 ? '...' : ''}</span>` : '<div class="flex-1"></div>'}
                             </div>
                             <div class="nav-actions flex gap-1">
-                                <button onclick="event.stopPropagation(); converter.openNavEditPopupByIndex(${index})" 
-                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">
+                                <button onclick="event.stopPropagation(); converter.openNavEditPopupByIndex(${index})"
+                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="event.stopPropagation(); converter.deleteNavItemByIndex(${index})" 
-                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs">
+                                <button onclick="event.stopPropagation(); converter.deleteNavItemByIndex(${index})"
+                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1368,11 +1368,11 @@ class CSVJSONConverter {
             await navigator.clipboard.writeText(output);
             const originalText = this.elements.copyOutput.textContent;
             this.elements.copyOutput.textContent = 'Copied!';
-            this.elements.copyOutput.className = 'px-4 py-2 bg-green-600 text-white rounded-lg transition-colors text-sm';
+            this.elements.copyOutput.className = 'px-4 py-2 bg-green-600 text-white rounded transition-colors text-sm';
 
             setTimeout(() => {
                 this.elements.copyOutput.textContent = originalText;
-                this.elements.copyOutput.className = 'px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm';
+                this.elements.copyOutput.className = 'px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm';
             }, 2000);
         } catch (error) {
             console.error('Failed to copy:', error);

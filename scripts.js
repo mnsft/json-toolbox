@@ -4,6 +4,11 @@ class CSVJSONConverter {
         this.initializeElements();
         this.attachEventListeners();
         this.setupDropZone();
+
+        // Navigator state
+        this.navData = null;
+        this.navPath = [];
+        this.navEditingKey = null;
     }
 
     initializeElements() {
@@ -13,14 +18,17 @@ class CSVJSONConverter {
             sortJsonBtn: document.getElementById('sortJsonBtn'),
             tableJsonBtn: document.getElementById('tableJsonBtn'),
             objectRemoverBtn: document.getElementById('objectRemoverBtn'),
+            navigatorBtn: document.getElementById('navigatorBtn'),
             inputTitle: document.getElementById('inputTitle'),
             outputTitle: document.getElementById('outputTitle'),
             inputText: document.getElementById('inputText'),
             inputTextTable: document.getElementById('inputTextTable'),
+            inputTextNavigator: document.getElementById('inputTextNavigator'),
             outputText: document.getElementById('outputText'),
             outputButtons: document.getElementById('outputButtons'),
             mainContent: document.getElementById('mainContent'),
             tableJsonLayout: document.getElementById('tableJsonLayout'),
+            navigatorLayout: document.getElementById('navigatorLayout'),
             jsonTableFull: document.getElementById('jsonTableFull'),
             tableHeadersFull: document.getElementById('tableHeadersFull'),
             tableBodyFull: document.getElementById('tableBodyFull'),
@@ -47,8 +55,12 @@ class CSVJSONConverter {
             removerPrettyJson: document.getElementById('removerPrettyJson'),
             clearInput: document.getElementById('clearInput'),
             clearInputTable: document.getElementById('clearInputTable'),
+            clearInputNavigator: document.getElementById('clearInputNavigator'),
             copyOutput: document.getElementById('copyOutput'),
             downloadOutput: document.getElementById('downloadOutput'),
+            copyJsonNavigator: document.getElementById('copyJsonNavigator'),
+            downloadJsonNavigator: document.getElementById('downloadJsonNavigator'),
+            addItemNavigator: document.getElementById('addItemNavigator'),
             errorMessage: document.getElementById('errorMessage'),
             errorText: document.getElementById('errorText'),
             conversionStats: document.getElementById('conversionStats'),
@@ -56,7 +68,21 @@ class CSVJSONConverter {
             processingTime: document.getElementById('processingTime'),
             tableRecordCount: document.getElementById('tableRecordCount'),
             tableColumnCount: document.getElementById('tableColumnCount'),
-            tableProcessingTime: document.getElementById('tableProcessingTime')
+            tableProcessingTime: document.getElementById('tableProcessingTime'),
+            // Navigator elements
+            navBreadcrumbs: document.getElementById('navBreadcrumbs'),
+            navContent: document.getElementById('navContent'),
+            navViewPopup: document.getElementById('navViewPopup'),
+            navViewPopupContent: document.getElementById('navViewPopupContent'),
+            navEditPopup: document.getElementById('navEditPopup'),
+            navEditKeyContainer: document.getElementById('navEditKeyContainer'),
+            navEditKey: document.getElementById('navEditKey'),
+            navEditTextarea: document.getElementById('navEditTextarea'),
+            navAddPopup: document.getElementById('navAddPopup'),
+            navAddKeyContainer: document.getElementById('navAddKeyContainer'),
+            navAddKey: document.getElementById('navAddKey'),
+            navAddType: document.getElementById('navAddType'),
+            navAddValue: document.getElementById('navAddValue')
         };
 
         this.sortCriteriaCount = 0;
@@ -72,8 +98,10 @@ class CSVJSONConverter {
         this.elements.sortJsonBtn.addEventListener('click', () => this.switchMode('sortJson'));
         this.elements.tableJsonBtn.addEventListener('click', () => this.switchMode('tableJson'));
         this.elements.objectRemoverBtn.addEventListener('click', () => this.switchMode('objectRemover'));
+        this.elements.navigatorBtn.addEventListener('click', () => this.switchMode('navigator'));
         this.elements.inputText.addEventListener('input', () => this.handleInputChange());
         this.elements.inputTextTable.addEventListener('input', () => this.handleTableInputChange());
+        this.elements.inputTextNavigator.addEventListener('input', () => this.handleNavigatorInputChange());
         this.elements.delimiter.addEventListener('change', () => this.convert());
         this.elements.hasHeaders.addEventListener('change', () => this.convert());
         this.elements.prettyJson.addEventListener('change', () => this.convert());
@@ -89,13 +117,17 @@ class CSVJSONConverter {
         this.elements.removerPrettyJson.addEventListener('change', () => this.convert());
         this.elements.clearInput.addEventListener('click', () => this.clearInput());
         this.elements.clearInputTable.addEventListener('click', () => this.clearTableInput());
+        this.elements.clearInputNavigator.addEventListener('click', () => this.clearNavigatorInput());
         this.elements.copyOutput.addEventListener('click', () => this.copyOutput());
         this.elements.downloadOutput.addEventListener('click', () => this.downloadOutput());
+        this.elements.copyJsonNavigator.addEventListener('click', () => this.copyNavigatorJson());
+        this.elements.downloadJsonNavigator.addEventListener('click', () => this.downloadNavigatorJson());
+        this.elements.addItemNavigator.addEventListener('click', () => this.openNavAddPopup());
         this.elements.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.elements.navAddType.addEventListener('change', () => this.updateNavAddPlaceholder());
     }
 
     setupDropZone() {
-        // Main drop zone
         const dropZone = this.elements.dropZone;
         dropZone.addEventListener('click', () => this.elements.fileInput.click());
 
@@ -113,7 +145,13 @@ class CSVJSONConverter {
             dropZone.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                this.handleFile(files[0]);
+                if (this.currentMode === 'tableJson') {
+                    this.handleTableFile(files[0]);
+                } else if (this.currentMode === 'navigator') {
+                    this.handleNavigatorFile(files[0]);
+                } else {
+                    this.handleFile(files[0]);
+                }
             }
         });
     }
@@ -122,15 +160,22 @@ class CSVJSONConverter {
         this.currentMode = mode;
 
         // Reset all button styles
-        this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
-        this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
-        this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
-        this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
-        this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
+        const buttons = [
+            this.elements.csvToJsonBtn,
+            this.elements.jsonToCsvBtn,
+            this.elements.sortJsonBtn,
+            this.elements.tableJsonBtn,
+            this.elements.objectRemoverBtn,
+            this.elements.navigatorBtn
+        ];
+        buttons.forEach(btn => {
+            btn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100';
+        });
 
         // Hide all layouts
-        this.elements.mainContent.classList.remove('hidden');
+        this.elements.mainContent.classList.add('hidden');
         this.elements.tableJsonLayout.classList.add('hidden');
+        this.elements.navigatorLayout.classList.add('hidden');
 
         // Hide all options
         this.elements.csvOptions.classList.add('hidden');
@@ -144,6 +189,7 @@ class CSVJSONConverter {
 
         if (mode === 'csvToJson') {
             this.elements.csvToJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input CSV';
             this.elements.outputTitle.textContent = 'Output JSON';
             this.elements.inputText.placeholder = 'Paste your CSV data here...';
@@ -154,6 +200,7 @@ class CSVJSONConverter {
             dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
             this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Output CSV';
             this.elements.inputText.placeholder = 'Paste your JSON data here...';
@@ -163,6 +210,7 @@ class CSVJSONConverter {
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
             this.elements.sortJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Sorted JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
@@ -171,21 +219,28 @@ class CSVJSONConverter {
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'tableJson') {
             this.elements.tableJsonBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
-            this.elements.mainContent.classList.add('hidden');
             this.elements.tableJsonLayout.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'objectRemover') {
             this.elements.objectRemoverBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.mainContent.classList.remove('hidden');
             this.elements.inputTitle.textContent = 'Input JSON';
             this.elements.outputTitle.textContent = 'Filtered JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
             this.elements.objectRemoverOptions.classList.remove('hidden');
             this.updateAvailableKeys();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
+        } else if (mode === 'navigator') {
+            this.elements.navigatorBtn.className = 'px-6 py-2 rounded-md font-medium transition-all duration-200 bg-slate-500 text-white';
+            this.elements.navigatorLayout.classList.remove('hidden');
+            dropZoneText.textContent = 'Drop your .json file here or click to browse';
+            this.renderNavigator();
         }
 
-        this.clearInput();
-        this.convert();
+        if (mode !== 'navigator') {
+            this.clearInput();
+            this.convert();
+        }
     }
 
     handleInputChange() {
@@ -199,9 +254,27 @@ class CSVJSONConverter {
         this.convertTable();
     }
 
+    handleNavigatorInputChange() {
+        const inputText = this.elements.inputTextNavigator.value.trim();
+        if (!inputText) {
+            this.navData = null;
+            this.navPath = [];
+            this.renderNavigator();
+            return;
+        }
+
+        try {
+            this.navData = JSON.parse(inputText);
+            this.navPath = [];
+            this.hideError();
+            this.renderNavigator();
+        } catch (error) {
+            this.showError('Invalid JSON: ' + error.message);
+        }
+    }
+
     handleRemovalOperatorChange() {
         const operator = this.elements.removalOperator.value;
-        // Show value input for operators that need a comparison value
         if (['equals', 'not_equals', 'contains', 'not_contains'].includes(operator)) {
             this.elements.removalValue.classList.remove('hidden');
         } else {
@@ -247,7 +320,6 @@ class CSVJSONConverter {
 
         this.elements.sortCriteria.appendChild(criteriaDiv);
 
-        // Add event listeners
         const sortKeySelect = criteriaDiv.querySelector('.sort-key');
         const sortOrderSelect = criteriaDiv.querySelector('.sort-order');
         const removeButton = criteriaDiv.querySelector('.remove-criteria');
@@ -256,10 +328,7 @@ class CSVJSONConverter {
         sortOrderSelect.addEventListener('change', () => this.convert());
         removeButton.addEventListener('click', () => this.removeSortCriteria(criteriaDiv));
 
-        // Populate with available keys
         this.populateSortKeyOptions(sortKeySelect);
-
-        // Update remove button visibility
         this.updateRemoveButtonsVisibility();
     }
 
@@ -271,7 +340,7 @@ class CSVJSONConverter {
 
     updateRemoveButtonsVisibility() {
         const allCriteria = this.elements.sortCriteria.querySelectorAll('.sort-criteria');
-        allCriteria.forEach((criteria, index) => {
+        allCriteria.forEach((criteria) => {
             const removeButton = criteria.querySelector('.remove-criteria');
             removeButton.style.visibility = allCriteria.length === 1 ? 'hidden' : 'visible';
         });
@@ -382,6 +451,8 @@ class CSVJSONConverter {
         if (file) {
             if (this.currentMode === 'tableJson') {
                 this.handleTableFile(file);
+            } else if (this.currentMode === 'navigator') {
+                this.handleNavigatorFile(file);
             } else {
                 this.handleFile(file);
             }
@@ -402,6 +473,15 @@ class CSVJSONConverter {
         reader.onload = (e) => {
             this.elements.inputTextTable.value = e.target.result;
             this.handleTableInputChange();
+        };
+        reader.readAsText(file);
+    }
+
+    handleNavigatorFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.elements.inputTextNavigator.value = e.target.result;
+            this.handleNavigatorInputChange();
         };
         reader.readAsText(file);
     }
@@ -490,7 +570,6 @@ class CSVJSONConverter {
     denormalizeToObject(data, originalInput) {
         try {
             const original = JSON.parse(originalInput);
-            // Se l'input originale era un oggetto (non array), riconvertilo
             if (!Array.isArray(original) && typeof original === 'object') {
                 const result = {};
                 data.forEach(item => {
@@ -502,7 +581,7 @@ class CSVJSONConverter {
                 return result;
             }
         } catch (e) {
-            // Se c'è un errore, ritorna l'array normale
+            // Return array if error
         }
         return data;
     }
@@ -535,7 +614,6 @@ class CSVJSONConverter {
             throw new Error('JSON must be an array');
         }
 
-        // Get all sort criteria
         const sortCriteria = [];
         const allCriteria = this.elements.sortCriteria.querySelectorAll('.sort-criteria');
 
@@ -557,12 +635,10 @@ class CSVJSONConverter {
                 let aVal = a[criteria.key];
                 let bVal = b[criteria.key];
 
-                // Handle null/undefined values
                 if (aVal == null && bVal == null) continue;
                 if (aVal == null) return criteria.order === 'asc' ? -1 : 1;
                 if (bVal == null) return criteria.order === 'asc' ? 1 : -1;
 
-                // Convert to strings for comparison if they're not numbers
                 if (typeof aVal !== 'number' || typeof bVal !== 'number') {
                     aVal = String(aVal).toLowerCase();
                     bVal = String(bVal).toLowerCase();
@@ -570,7 +646,6 @@ class CSVJSONConverter {
 
                 if (aVal < bVal) return criteria.order === 'asc' ? -1 : 1;
                 if (aVal > bVal) return criteria.order === 'asc' ? 1 : -1;
-                // If equal, continue to next criteria
             }
             return 0;
         });
@@ -593,7 +668,6 @@ class CSVJSONConverter {
         }
 
         const filteredData = data.filter(item => {
-            // Skip non-objects
             if (typeof item !== 'object' || item === null) {
                 return true;
             }
@@ -634,7 +708,6 @@ class CSVJSONConverter {
         this.tableSortColumn = null;
         this.tableSortDirection = 'asc';
 
-        // Get all unique keys from all objects
         const allKeys = new Set();
         data.forEach(item => {
             if (typeof item === 'object' && item !== null) {
@@ -645,7 +718,6 @@ class CSVJSONConverter {
         const keys = Array.from(allKeys);
         const showRowNumbers = this.elements.showRowNumbersTable.checked;
 
-        // Create headers
         let headerHtml = '';
         if (showRowNumbers) {
             headerHtml += '<th class="p-3 text-left border-b border-gray-200 font-medium text-gray-700 bg-gray-50">#</th>';
@@ -662,7 +734,6 @@ class CSVJSONConverter {
 
         this.elements.tableHeadersFull.innerHTML = '<tr>' + headerHtml + '</tr>';
 
-        // Add click listeners to headers
         this.elements.tableHeadersFull.querySelectorAll('.sortable-header').forEach(header => {
             header.addEventListener('click', () => {
                 const column = header.getAttribute('data-column');
@@ -711,7 +782,6 @@ class CSVJSONConverter {
     }
 
     sortTableFull(column) {
-        // Update sort direction
         if (this.tableSortColumn === column) {
             this.tableSortDirection = this.tableSortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -719,17 +789,14 @@ class CSVJSONConverter {
             this.tableSortDirection = 'asc';
         }
 
-        // Sort the data
         this.tableData.sort((a, b) => {
             let aVal = a[column];
             let bVal = b[column];
 
-            // Handle null/undefined values
             if (aVal == null && bVal == null) return 0;
             if (aVal == null) return this.tableSortDirection === 'asc' ? -1 : 1;
             if (bVal == null) return this.tableSortDirection === 'asc' ? 1 : -1;
 
-            // Convert to strings for comparison if they're not numbers
             if (typeof aVal !== 'number' || typeof bVal !== 'number') {
                 aVal = String(aVal).toLowerCase();
                 bVal = String(bVal).toLowerCase();
@@ -740,7 +807,6 @@ class CSVJSONConverter {
             return 0;
         });
 
-        // Update sort indicators
         this.elements.tableHeadersFull.querySelectorAll('.sort-indicator').forEach(indicator => {
             indicator.className = 'sort-indicator';
         });
@@ -750,7 +816,6 @@ class CSVJSONConverter {
             activeHeader.className = `sort-indicator ${this.tableSortDirection}`;
         }
 
-        // Re-render table body
         const keys = Array.from(new Set(this.tableData.flatMap(item => Object.keys(item))));
         this.renderTableBodyFull(keys);
     }
@@ -774,8 +839,8 @@ class CSVJSONConverter {
     }
 
     convert() {
-        if (this.currentMode === 'tableJson') {
-            return; // Table mode has its own convert method
+        if (this.currentMode === 'tableJson' || this.currentMode === 'navigator') {
+            return;
         }
 
         const inputText = this.elements.inputText.value.trim();
@@ -801,7 +866,7 @@ class CSVJSONConverter {
             } else if (this.currentMode === 'jsonToCsv') {
                 result = this.jsonToCsv(inputText);
                 const lines = result.split('\n').filter(line => line.trim());
-                recordCount = Math.max(0, lines.length - 1); // Subtract header row
+                recordCount = Math.max(0, lines.length - 1);
             } else if (this.currentMode === 'sortJson') {
                 const sortedData = this.sortJson(inputText);
                 const finalData = this.denormalizeToObject(sortedData, inputText);
@@ -864,6 +929,375 @@ class CSVJSONConverter {
         }
     }
 
+    // ==================== NAVIGATOR METHODS ====================
+
+    getNavCurrentData() {
+        if (!this.navData) return null;
+        let data = this.navData;
+        for (let key of this.navPath) {
+            data = data[key];
+        }
+        return data;
+    }
+
+    getNavIconForType(value) {
+        if (value === null) {
+            return { icon: 'fa-ban', color: 'text-gray-400' };
+        }
+        if (Array.isArray(value)) {
+            return { icon: 'fa-list', color: 'text-blue-600' };
+        }
+        const type = typeof value;
+        const icons = {
+            'object': { icon: 'fa-folder', color: 'text-yellow-600' },
+            'string': { icon: 'fa-font', color: 'text-green-600' },
+            'number': { icon: 'fa-hashtag', color: 'text-purple-600' },
+            'boolean': { icon: 'fa-toggle-on', color: 'text-orange-600' }
+        };
+        return icons[type] || { icon: 'fa-file', color: 'text-gray-600' };
+    }
+
+    navigateTo(index) {
+        this.navPath = this.navPath.slice(0, index);
+        this.renderNavigator();
+    }
+
+    enterNavFolder(key) {
+        this.navPath.push(key);
+        this.renderNavigator();
+    }
+
+    renderNavBreadcrumbs() {
+        const breadcrumbs = this.elements.navBreadcrumbs;
+        breadcrumbs.innerHTML = `
+            <i class="fas fa-home mr-1"></i>
+            <span onclick="converter.navigateTo(0)" class="cursor-pointer hover:text-blue-500">Root</span>
+        `;
+
+        this.navPath.forEach((part, index) => {
+            breadcrumbs.innerHTML += `
+                <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                <span onclick="converter.navigateTo(${index + 1})" class="cursor-pointer hover:text-blue-500">${part}</span>
+            `;
+        });
+    }
+
+    renderNavigator() {
+        if (!this.navData) {
+            this.elements.navBreadcrumbs.innerHTML = '';
+            this.elements.navContent.innerHTML = '<p class="text-gray-500 text-center py-8">Paste JSON data to start navigating</p>';
+            return;
+        }
+
+        this.renderNavBreadcrumbs();
+        const content = this.elements.navContent;
+        const data = this.getNavCurrentData();
+
+        if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+            let html = '<div class="space-y-1">';
+            const keys = Object.keys(data);
+
+            if (keys.length > 0) {
+                for (let key of keys) {
+                    const value = data[key];
+                    const isFolder = typeof value === 'object' && value !== null;
+                    const iconInfo = this.getNavIconForType(value);
+                    const escapedKey = this.escapeHtml(key);
+                    const preview = !isFolder ? this.escapeHtml(JSON.stringify(value).substring(0, 50)) : '';
+
+                    html += `
+                        <div class="nav-item flex items-center p-2 rounded group">
+                            <div class="flex items-center flex-1 cursor-pointer" 
+                                 onclick="${isFolder ? `converter.enterNavFolder('${this.escapeJs(key)}')` : `converter.openNavViewPopup('${this.escapeJs(key)}')`}">
+                                <i class="fas ${iconInfo.icon} ${iconInfo.color} mr-3 w-4 text-center"></i>
+                                <span class="font-medium">${escapedKey}</span>
+                                ${!isFolder ? `<span class="ml-auto text-sm text-gray-500 mr-2 truncate max-w-[200px]">${preview}${preview.length >= 50 ? '...' : ''}</span>` : '<div class="flex-1"></div>'}
+                            </div>
+                            <div class="nav-actions flex gap-1">
+                                <button onclick="event.stopPropagation(); converter.openNavEditPopup('${this.escapeJs(key)}')" 
+                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); converter.deleteNavItem('${this.escapeJs(key)}')" 
+                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                html += '<p class="text-gray-500 text-center py-4">Empty object</p>';
+            }
+
+            html += '</div>';
+            content.innerHTML = html;
+
+        } else if (Array.isArray(data)) {
+            let html = '<div class="space-y-1">';
+
+            if (data.length > 0) {
+                data.forEach((item, index) => {
+                    const isFolder = typeof item === 'object' && item !== null;
+                    const iconInfo = this.getNavIconForType(item);
+                    const preview = !isFolder ? this.escapeHtml(JSON.stringify(item).substring(0, 50)) : '';
+
+                    html += `
+                        <div class="nav-item flex items-center p-2 rounded group">
+                            <div class="flex items-center flex-1 cursor-pointer" 
+                                 onclick="${isFolder ? `converter.enterNavFolder(${index})` : `converter.openNavViewPopupByIndex(${index})`}">
+                                <i class="fas ${iconInfo.icon} ${iconInfo.color} mr-3 w-4 text-center"></i>
+                                <span class="font-medium">[${index}]</span>
+                                ${!isFolder ? `<span class="ml-auto text-sm text-gray-500 mr-2 truncate max-w-[200px]">${preview}${preview.length >= 50 ? '...' : ''}</span>` : '<div class="flex-1"></div>'}
+                            </div>
+                            <div class="nav-actions flex gap-1">
+                                <button onclick="event.stopPropagation(); converter.openNavEditPopupByIndex(${index})" 
+                                        class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); converter.deleteNavItemByIndex(${index})" 
+                                        class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p class="text-gray-500 text-center py-4">Empty array</p>';
+            }
+
+            html += '</div>';
+            content.innerHTML = html;
+
+        } else {
+            content.innerHTML = `<pre class="text-sm text-gray-700 whitespace-pre-wrap">${this.escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+        }
+    }
+
+    escapeHtml(str) {
+        if (typeof str !== 'string') str = String(str);
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    escapeJs(str) {
+        return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    syncNavigatorToTextarea() {
+        this.elements.inputTextNavigator.value = JSON.stringify(this.navData, null, 2);
+    }
+
+    openNavViewPopup(key) {
+        const data = this.getNavCurrentData();
+        const value = data[key];
+        this.elements.navViewPopupContent.innerHTML = `<pre class="text-sm text-gray-700 whitespace-pre-wrap">${this.escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+        this.elements.navViewPopup.classList.remove('hidden');
+    }
+
+    openNavViewPopupByIndex(index) {
+        const data = this.getNavCurrentData();
+        const value = data[index];
+        this.elements.navViewPopupContent.innerHTML = `<pre class="text-sm text-gray-700 whitespace-pre-wrap">${this.escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+        this.elements.navViewPopup.classList.remove('hidden');
+    }
+
+    closeNavViewPopup() {
+        this.elements.navViewPopup.classList.add('hidden');
+    }
+
+    openNavEditPopup(key) {
+        this.navEditingKey = key;
+        const data = this.getNavCurrentData();
+        const value = data[key];
+
+        if (Array.isArray(data)) {
+            this.elements.navEditKeyContainer.style.display = 'none';
+        } else {
+            this.elements.navEditKeyContainer.style.display = 'block';
+            this.elements.navEditKey.value = key;
+        }
+
+        this.elements.navEditTextarea.value = JSON.stringify(value, null, 2);
+        this.elements.navEditPopup.classList.remove('hidden');
+    }
+
+    openNavEditPopupByIndex(index) {
+        this.openNavEditPopup(index);
+    }
+
+    closeNavEditPopup() {
+        this.elements.navEditPopup.classList.add('hidden');
+        this.navEditingKey = null;
+    }
+
+    saveNavEdit() {
+        try {
+            const newValue = JSON.parse(this.elements.navEditTextarea.value);
+            const data = this.getNavCurrentData();
+
+            if (!Array.isArray(data)) {
+                const newKey = this.elements.navEditKey.value;
+                if (newKey && newKey !== this.navEditingKey) {
+                    delete data[this.navEditingKey];
+                    data[newKey] = newValue;
+                } else {
+                    data[this.navEditingKey] = newValue;
+                }
+            } else {
+                data[this.navEditingKey] = newValue;
+            }
+
+            this.closeNavEditPopup();
+            this.syncNavigatorToTextarea();
+            this.renderNavigator();
+        } catch (error) {
+            alert('Invalid JSON: ' + error.message);
+        }
+    }
+
+    deleteNavItem(key) {
+        if (!confirm(`Delete "${key}"?`)) return;
+        const data = this.getNavCurrentData();
+        delete data[key];
+        this.syncNavigatorToTextarea();
+        this.renderNavigator();
+    }
+
+    deleteNavItemByIndex(index) {
+        if (!confirm(`Delete item [${index}]?`)) return;
+        const data = this.getNavCurrentData();
+        data.splice(index, 1);
+        this.syncNavigatorToTextarea();
+        this.renderNavigator();
+    }
+
+    openNavAddPopup() {
+        if (!this.navData) {
+            alert('Please paste JSON data first');
+            return;
+        }
+
+        const data = this.getNavCurrentData();
+        if (Array.isArray(data)) {
+            this.elements.navAddKeyContainer.style.display = 'none';
+        } else {
+            this.elements.navAddKeyContainer.style.display = 'block';
+        }
+
+        this.elements.navAddKey.value = '';
+        this.elements.navAddValue.value = '';
+        this.elements.navAddType.value = 'string';
+        this.updateNavAddPlaceholder();
+        this.elements.navAddPopup.classList.remove('hidden');
+    }
+
+    closeNavAddPopup() {
+        this.elements.navAddPopup.classList.add('hidden');
+    }
+
+    updateNavAddPlaceholder() {
+        const type = this.elements.navAddType.value;
+        const valueInput = this.elements.navAddValue;
+        const placeholders = {
+            'string': '"text"',
+            'number': '123',
+            'boolean': 'true',
+            'object': '{}',
+            'array': '[]',
+            'null': 'null'
+        };
+        valueInput.placeholder = placeholders[type] || '';
+        if (type === 'object') {
+            valueInput.value = '{}';
+        } else if (type === 'array') {
+            valueInput.value = '[]';
+        } else if (type === 'null') {
+            valueInput.value = 'null';
+        } else {
+            valueInput.value = '';
+        }
+    }
+
+    saveNavAdd() {
+        try {
+            const key = this.elements.navAddKey.value;
+            const type = this.elements.navAddType.value;
+            let value = this.elements.navAddValue.value;
+            const data = this.getNavCurrentData();
+
+            if (!Array.isArray(data) && !key) {
+                alert('Please enter a key name');
+                return;
+            }
+
+            if (type === 'string') {
+                value = value.startsWith('"') ? JSON.parse(value) : value;
+            } else if (type === 'number') {
+                value = parseFloat(value);
+                if (isNaN(value)) throw new Error('Invalid number');
+            } else if (type === 'boolean') {
+                value = value === 'true';
+            } else {
+                value = JSON.parse(value);
+            }
+
+            if (Array.isArray(data)) {
+                data.push(value);
+            } else {
+                data[key] = value;
+            }
+
+            this.closeNavAddPopup();
+            this.syncNavigatorToTextarea();
+            this.renderNavigator();
+        } catch (error) {
+            alert('Invalid input: ' + error.message);
+        }
+    }
+
+    async copyNavigatorJson() {
+        if (!this.navData) return;
+        try {
+            await navigator.clipboard.writeText(JSON.stringify(this.navData, null, 2));
+            const btn = this.elements.copyJsonNavigator;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+            btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+            btn.classList.add('bg-green-600');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-green-500', 'hover:bg-green-600');
+            }, 2000);
+        } catch (error) {
+            console.error('Failed to copy:', error);
+        }
+    }
+
+    downloadNavigatorJson() {
+        if (!this.navData) return;
+        const blob = new Blob([JSON.stringify(this.navData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    clearNavigatorInput() {
+        this.elements.inputTextNavigator.value = '';
+        this.navData = null;
+        this.navPath = [];
+        this.renderNavigator();
+        this.hideError();
+    }
+
+    // ==================== COMMON METHODS ====================
+
     clearInput() {
         this.elements.inputText.value = '';
         this.elements.outputText.value = '';
@@ -887,8 +1321,8 @@ class CSVJSONConverter {
     }
 
     async copyOutput() {
-        if (this.currentMode === 'tableJson') {
-            return; // No copy functionality for table mode
+        if (this.currentMode === 'tableJson' || this.currentMode === 'navigator') {
+            return;
         }
 
         const output = this.elements.outputText.value;
@@ -910,8 +1344,8 @@ class CSVJSONConverter {
     }
 
     downloadOutput() {
-        if (this.currentMode === 'tableJson') {
-            return; // No download functionality for table mode
+        if (this.currentMode === 'tableJson' || this.currentMode === 'navigator') {
+            return;
         }
 
         const output = this.elements.outputText.value;
@@ -959,7 +1393,8 @@ class CSVJSONConverter {
     }
 }
 
-// Initialize the converter when the page loads
+// Initialize and expose globally for onclick handlers
+let converter;
 document.addEventListener('DOMContentLoaded', () => {
-    new CSVJSONConverter();
+    converter = new CSVJSONConverter();
 });

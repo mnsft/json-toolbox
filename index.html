@@ -8,6 +8,7 @@
     <link href="https://minisoft.it/icons/fix.png" rel="shortcut icon" type="image/x-icon" />
     <link href="https://minisoft.it/icons/fix.png" rel="apple-touch-icon" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .drop-zone {
             border: 2px dashed #e5e7eb;
@@ -72,6 +73,24 @@
         #jsonTableFull tbody tr:hover {
             background-color: #eff6ff;
         }
+
+        /* Navigator styles */
+        .nav-item {
+            transition: background-color 0.15s ease;
+        }
+
+        .nav-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-item .nav-actions {
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .nav-item:hover .nav-actions {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -105,6 +124,10 @@
                 <button id="tableJsonBtn"
                     class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
                     Table
+                </button>
+                <button id="navigatorBtn"
+                    class="px-6 py-2 rounded-md font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100">
+                    Navigate
                 </button>
             </div>
         </div>
@@ -334,6 +357,58 @@
             </div>
         </div>
 
+        <!-- Navigator Layout -->
+        <div id="navigatorLayout" class="hidden">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Input Section for Navigator Mode -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Input JSON</h2>
+                        <button id="clearInputNavigator"
+                            class="text-sm text-red-500 hover:text-red-700 transition-colors">
+                            Clear
+                        </button>
+                    </div>
+
+                    <!-- Text Input for Navigator -->
+                    <textarea id="inputTextNavigator" placeholder="Paste your JSON data here..."
+                        class="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-slate-500 focus:border-transparent font-mono text-sm"></textarea>
+
+                    <div class="mt-4 flex gap-2">
+                        <button id="copyJsonNavigator"
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                            <i class="fas fa-copy mr-2"></i>Copy JSON
+                        </button>
+                        <button id="downloadJsonNavigator"
+                            class="px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm">
+                            <i class="fas fa-download mr-2"></i>Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigator Section -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Navigator</h2>
+                        <button id="addItemNavigator"
+                            class="px-3 py-1 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors text-sm">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+
+                    <!-- Breadcrumbs -->
+                    <div id="navBreadcrumbs" class="mb-4 px-2 flex items-center text-sm text-gray-600 flex-wrap gap-1">
+                    </div>
+
+                    <!-- Navigator Content -->
+                    <div id="navContent"
+                        class="border rounded-lg p-4 bg-gray-50 min-h-[400px] max-h-[500px] overflow-auto">
+                        <p class="text-gray-500 text-center py-8">Paste JSON data to start navigating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Error Messages -->
         <div id="errorMessage" class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded hidden">
             <div class="flex">
@@ -342,6 +417,87 @@
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" />
                 </svg>
                 <span id="errorText"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigator Popups -->
+    <div id="navViewPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="text-xl font-bold text-gray-800">Value</h2>
+                <button onclick="converter.closeNavViewPopup()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="navViewPopupContent" class="p-4 overflow-auto flex-1"></div>
+        </div>
+    </div>
+
+    <div id="navEditPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="text-xl font-bold text-gray-800">Edit Item</h2>
+                <button onclick="converter.closeNavEditPopup()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div id="navEditKeyContainer">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Key Name</label>
+                    <input type="text" id="navEditKey" class="w-full p-2 border rounded-lg"
+                        placeholder="Enter key name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                    <textarea id="navEditTextarea" class="w-full h-64 p-2 border rounded-lg font-mono text-sm"
+                        placeholder="Enter JSON value"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-2">
+                <button onclick="converter.closeNavEditPopup()"
+                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                <button onclick="converter.saveNavEdit()"
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="navAddPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="text-xl font-bold text-gray-800">Add New Item</h2>
+                <button onclick="converter.closeNavAddPopup()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div id="navAddKeyContainer">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Key/Index</label>
+                    <input type="text" id="navAddKey" class="w-full p-2 border rounded-lg" placeholder="Enter key name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select id="navAddType" class="w-full p-2 border rounded-lg">
+                        <option value="string">String</option>
+                        <option value="number">Number</option>
+                        <option value="boolean">Boolean</option>
+                        <option value="object">Object (Folder)</option>
+                        <option value="array">Array</option>
+                        <option value="null">Null</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                    <textarea id="navAddValue" class="w-full h-32 p-2 border rounded-lg font-mono text-sm"
+                        placeholder="Enter value"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-2">
+                <button onclick="converter.closeNavAddPopup()"
+                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                <button onclick="converter.saveNavAdd()"
+                    class="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600">Add</button>
             </div>
         </div>
     </div>

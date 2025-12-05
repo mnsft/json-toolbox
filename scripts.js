@@ -9,6 +9,16 @@ class CSVJSONConverter {
         this.navData = null;
         this.navPath = [];
         this.navEditingKey = null;
+
+        // Per-mode state storage
+        this.modeStates = {
+            csvToJson: { input: '', output: '' },
+            jsonToCsv: { input: '', output: '' },
+            sortJson: { input: '', output: '', sortCriteriaState: null },
+            objectRemover: { input: '', output: '', removalKey: '', removalOperator: 'exists', removalValue: '' },
+            tableJson: { input: '' },
+            navigator: { input: '' }
+        };
     }
 
     initializeElements() {
@@ -178,7 +188,98 @@ class CSVJSONConverter {
         });
     }
 
+    saveModeState(mode) {
+        const state = this.modeStates[mode];
+        if (!state) return;
+
+        if (mode === 'tableJson') {
+            state.input = this.elements.inputTextTable.value;
+        } else if (mode === 'navigator') {
+            state.input = this.elements.inputTextNavigator.value;
+        } else {
+            state.input = this.elements.inputText.value;
+            state.output = this.elements.outputText.value;
+
+            if (mode === 'sortJson') {
+                // Save sort criteria state
+                const criteriaElements = this.elements.sortCriteria.querySelectorAll('.sort-criteria');
+                state.sortCriteriaState = Array.from(criteriaElements).map(el => ({
+                    key: el.querySelector('.sort-key').value,
+                    order: el.querySelector('.sort-order').value
+                }));
+            } else if (mode === 'objectRemover') {
+                state.removalKey = this.elements.removalKey.value;
+                state.removalOperator = this.elements.removalOperator.value;
+                state.removalValue = this.elements.removalValue.value;
+            }
+        }
+    }
+
+    restoreModeState(mode) {
+        const state = this.modeStates[mode];
+        if (!state) return;
+
+        if (mode === 'tableJson') {
+            this.elements.inputTextTable.value = state.input;
+            if (state.input) {
+                this.convertTable();
+            }
+        } else if (mode === 'navigator') {
+            this.elements.inputTextNavigator.value = state.input;
+            if (state.input) {
+                this.handleNavigatorInputChange();
+            } else {
+                this.renderNavigator();
+            }
+        } else {
+            this.elements.inputText.value = state.input;
+            this.elements.outputText.value = state.output;
+
+            if (mode === 'sortJson') {
+                // Restore sort criteria
+                if (state.sortCriteriaState && state.sortCriteriaState.length > 0) {
+                    this.elements.sortCriteria.innerHTML = '';
+                    this.sortCriteriaCount = 0;
+                    state.sortCriteriaState.forEach((criteria, index) => {
+                        this.addSortCriteria();
+                        const criteriaElements = this.elements.sortCriteria.querySelectorAll('.sort-criteria');
+                        const lastCriteria = criteriaElements[criteriaElements.length - 1];
+                        lastCriteria.querySelector('.sort-key').value = criteria.key;
+                        lastCriteria.querySelector('.sort-order').value = criteria.order;
+                    });
+                } else {
+                    this.initializeSortCriteria();
+                }
+                if (state.input) {
+                    this.updateAvailableKeys();
+                }
+            } else if (mode === 'objectRemover') {
+                if (state.input) {
+                    this.updateAvailableKeys();
+                }
+                // Restore after keys are updated
+                setTimeout(() => {
+                    this.elements.removalKey.value = state.removalKey;
+                    this.elements.removalOperator.value = state.removalOperator;
+                    this.elements.removalValue.value = state.removalValue;
+                    this.handleRemovalOperatorChange();
+                }, 0);
+            }
+
+            // Show/hide stats based on whether there's output
+            if (state.output) {
+                this.elements.conversionStats.classList.remove('hidden');
+            } else {
+                this.hideStats();
+            }
+            this.hideError();
+        }
+    }
+
     switchMode(mode) {
+        // Save current mode state before switching
+        this.saveModeState(this.currentMode);
+
         this.currentMode = mode;
 
         // Reset all button styles
@@ -237,7 +338,6 @@ class CSVJSONConverter {
             this.elements.outputTitle.textContent = 'Sorted JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
             this.elements.sortOptions.classList.remove('hidden');
-            this.initializeSortCriteria();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'tableJson') {
             this.elements.tableJsonBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
@@ -250,19 +350,15 @@ class CSVJSONConverter {
             this.elements.outputTitle.textContent = 'Filtered JSON';
             this.elements.inputText.placeholder = 'Paste your JSON array data here...';
             this.elements.objectRemoverOptions.classList.remove('hidden');
-            this.updateAvailableKeys();
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'navigator') {
             this.elements.navigatorBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
             this.elements.navigatorLayout.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
-            this.renderNavigator();
         }
 
-        if (mode !== 'navigator') {
-            this.clearInput();
-            this.convert();
-        }
+        // Restore the new mode's state
+        this.restoreModeState(mode);
     }
 
     handleInputChange() {

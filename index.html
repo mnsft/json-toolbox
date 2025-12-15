@@ -96,6 +96,57 @@
         .nav-item:hover .nav-actions {
             opacity: 1;
         }
+
+        /* Toggle switch styles */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.2s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background-color: #64748b;
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+
+        .toggle input:focus + .toggle-slider {
+            box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.3);
+        }
     </style>
 </head>
 
@@ -178,18 +229,24 @@
                                 <option value="|">Pipe (|)</option>
                             </select>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="hasHeaders" checked class="mr-2">
-                            <label for="hasHeaders" class="text-sm text-gray-700">Has headers</label>
+                        <div class="flex items-center gap-2">
+                            <label class="toggle">
+                                <input type="checkbox" id="hasHeaders" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <label for="hasHeaders" class="text-sm text-gray-700 cursor-pointer">Has headers</label>
                         </div>
                     </div>
                 </div>
 
                 <div id="jsonOptions" class="mt-4 p-4 bg-gray-50 rounded-lg">
                     <h3 class="text-sm font-medium text-gray-700 mb-2">JSON Options</h3>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="prettyJson" checked class="mr-2">
-                        <label for="prettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    <div class="flex items-center gap-2">
+                        <label class="toggle">
+                            <input type="checkbox" id="prettyJson" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="prettyJson" class="text-sm text-gray-700 cursor-pointer">Pretty format (indented)</label>
                     </div>
                 </div>
 
@@ -208,22 +265,31 @@
                             Add sort criteria
                         </button>
                     </div>
-                    <div class="mt-3 flex items-center">
-                        <input type="checkbox" id="sortPrettyJson" checked class="mr-2">
-                        <label for="sortPrettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    <div class="mt-3 flex items-center gap-2">
+                        <label class="toggle">
+                            <input type="checkbox" id="sortPrettyJson" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="sortPrettyJson" class="text-sm text-gray-700 cursor-pointer">Pretty format (indented)</label>
                     </div>
                 </div>
 
                 <div id="tableOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
                     <h3 class="text-sm font-medium text-gray-700 mb-2">Table Options</h3>
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="showRowNumbers" checked class="mr-2">
-                            <label for="showRowNumbers" class="text-sm text-gray-700">Show row numbers</label>
+                        <div class="flex items-center gap-2">
+                            <label class="toggle">
+                                <input type="checkbox" id="showRowNumbers" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <label for="showRowNumbers" class="text-sm text-gray-700 cursor-pointer">Show row numbers</label>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="striped" checked class="mr-2">
-                            <label for="striped" class="text-sm text-gray-700">Striped rows</label>
+                        <div class="flex items-center gap-2">
+                            <label class="toggle">
+                                <input type="checkbox" id="striped" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <label for="striped" class="text-sm text-gray-700 cursor-pointer">Striped rows</label>
                         </div>
                     </div>
                 </div>
@@ -251,9 +317,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3 flex items-center">
-                        <input type="checkbox" id="removerPrettyJson" checked class="mr-2">
-                        <label for="removerPrettyJson" class="text-sm text-gray-700">Pretty format (indented)</label>
+                    <div class="mt-3 flex items-center gap-2">
+                        <label class="toggle">
+                            <input type="checkbox" id="removerPrettyJson" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="removerPrettyJson" class="text-sm text-gray-700 cursor-pointer">Pretty format (indented)</label>
                     </div>
                 </div>
             </div>
@@ -320,13 +389,19 @@
                     <div class="mt-4 p-4 bg-gray-50 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-700 mb-2">Table Options</h3>
                         <div class="space-y-2">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="showRowNumbersTable" checked class="mr-2">
-                                <label for="showRowNumbersTable" class="text-sm text-gray-700">Show row numbers</label>
+                            <div class="flex items-center gap-2">
+                                <label class="toggle">
+                                    <input type="checkbox" id="showRowNumbersTable" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <label for="showRowNumbersTable" class="text-sm text-gray-700 cursor-pointer">Show row numbers</label>
                             </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="stripedTable" checked class="mr-2">
-                                <label for="stripedTable" class="text-sm text-gray-700">Striped rows</label>
+                            <div class="flex items-center gap-2">
+                                <label class="toggle">
+                                    <input type="checkbox" id="stripedTable" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <label for="stripedTable" class="text-sm text-gray-700 cursor-pointer">Striped rows</label>
                             </div>
                         </div>
                     </div>

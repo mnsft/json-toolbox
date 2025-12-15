@@ -319,7 +319,7 @@ class CSVJSONConverter {
             this.elements.csvOptions.classList.remove('hidden');
             this.elements.jsonOptions.classList.remove('hidden');
             this.elements.csvOptions.querySelector('.grid').classList.remove('hidden');
-            this.elements.hasHeaders.parentElement.classList.remove('hidden');
+            this.elements.hasHeaders.parentElement.parentElement.classList.remove('hidden');
             dropZoneText.textContent = 'Drop your .csv file here or click to browse';
         } else if (mode === 'jsonToCsv') {
             this.elements.jsonToCsvBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
@@ -329,7 +329,7 @@ class CSVJSONConverter {
             this.elements.inputText.placeholder = 'Paste your JSON data here...';
             this.elements.csvOptions.classList.remove('hidden');
             this.elements.csvOptions.querySelector('.grid').classList.remove('hidden');
-            this.elements.hasHeaders.parentElement.classList.add('hidden');
+            this.elements.hasHeaders.parentElement.parentElement.classList.add('hidden');
             dropZoneText.textContent = 'Drop your .json file here or click to browse';
         } else if (mode === 'sortJson') {
             this.elements.sortJsonBtn.className = 'px-6 py-2 rounded font-medium transition-colors bg-slate-500 text-white';
